@@ -130,3 +130,5 @@ an embedding-based hybrid upgrade is implemented here (`crisis_detection_cosine.
 and evaluated in §7.4.4. The RAG concern-tier gate similarly under-fires
 on natural phrasing (Ch.7 §7.5.2). The system is single-user, with no
 authentication, by deliberate scope decision (Ch.1 §1.2).
+
+Copyright (c) 2026 Ritu Balakrishnan. All rights reserved.
