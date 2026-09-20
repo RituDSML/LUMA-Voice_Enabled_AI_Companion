@@ -1,0 +1,42 @@
+[
+  {
+    "id": "scene-safety",
+    "title": "Scene safety first",
+    "content": "Before helping someone, check the area for danger and make sure you are safe first. Helping someone else is not possible if you become injured yourself in the process."
+  },
+  {
+    "id": "check-the-person",
+    "title": "Checking on a person",
+    "content": "Gently tap the person and ask if they are okay. This is the first step to assess whether they are responsive before deciding on next actions."
+  },
+  {
+    "id": "call-emergency-services",
+    "title": "When to call for emergency help",
+    "content": "Call local emergency numbers (112 or 108 in India) immediately if a person is badly hurt or not responding. This should happen before or alongside any first-aid steps, not after."
+  },
+  {
+    "id": "airway-and-breathing",
+    "title": "Checking airway and breathing",
+    "content": "Check if the person is breathing normally. If needed, gently clear the airway. If breathing is absent or irregular, call emergency services immediately."
+  },
+  {
+    "id": "bleeding",
+    "title": "Bleeding (minor to moderate)",
+    "content": "Apply direct pressure on the wound using a clean cloth or bandage. Keep pressure steady and continuous. If bleeding is severe or won't stop after several minutes of pressure, call emergency services immediately."
+  },
+  {
+    "id": "burns",
+    "title": "Minor burns",
+    "content": "Run cool (not ice-cold) water over the burn for several minutes, then cover it with a clean, loose bandage. Do not apply ice, butter, or other home remedies directly to the burn. For large, deep, or severe burns, call emergency services."
+  },
+  {
+    "id": "choking",
+    "title": "Choking",
+    "content": "Give back blows between the shoulder blades, followed by abdominal thrusts (the Heimlich maneuver) if back blows don't clear the obstruction. If the person cannot breathe, cough, or speak at all, or loses consciousness, call emergency services immediately."
+  },
+  {
+    "id": "cpr",
+    "title": "CPR (cardiopulmonary resuscitation)",
+    "content": "If a person is not breathing, push hard and fast on the center of the chest at a rate of 100 to 120 compressions per minute. Call emergency services immediately and continue CPR until help arrives or the person starts breathing on their own. Proper CPR technique is best learned through certified in-person training."
+  }
+]

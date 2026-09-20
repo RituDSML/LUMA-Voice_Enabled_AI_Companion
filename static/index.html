@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LUMA</title>
+<style>
+  :root {
+    --bg: #f7f5f2;
+    --card: #ffffff;
+    --accent: #6b5b95;
+    --accent-light: #ede9f6;
+    --text: #2b2b2b;
+    --muted: #8a8a8a;
+    --danger: #b3413f;
+    --danger-bg: #fbeceb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+  }
+  .app {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 48px);
+  }
+  h1 {
+    font-size: 1.3rem;
+    margin: 0 0 4px 0;
+  }
+  .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; }
+
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .bubble {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    line-height: 1.4;
+    font-size: 0.95rem;
+  }
+  .bubble.luma {
+    background: var(--accent-light);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .bubble.user {
+    background: var(--accent);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .emotion-tag {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .controls {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+  }
+  #textInput {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    font-size: 0.95rem;
+  }
+  button {
+    border: none;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background: var(--accent);
+    color: white;
+  }
+  button:disabled { opacity: 0.5; cursor: default; }
+  #micBtn.recording { background: var(--danger); }
+
+  /* Crisis takeover view */
+  #crisisView {
+    display: none;
+    background: var(--danger-bg);
+    border: 1px solid var(--danger);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 12px;
+  }
+  #crisisView h2 { margin: 0 0 8px 0; font-size: 1rem; color: var(--danger); }
+  #crisisView p { white-space: pre-line; font-size: 0.9rem; line-height: 1.5; }
+  #crisisView .actions { display: flex; gap: 8px; margin-top: 12px; }
+  #caregiverInfo { margin-top: 10px; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>LUMA</h1>
+  <div class="subtitle">Your personal health companion</div>
+
+  <div id="chat"></div>
+
+  <div class="controls">
+    <select id="micSelect" style="max-width: 140px; border-radius: 20px; padding: 8px; border: 1px solid #ddd; font-size: 0.8rem;"></select>
+    <button id="micBtn">🎙️</button>
+    <input id="textInput" type="text" placeholder="Type a message...">
+    <button id="sendBtn">Send</button>
+  </div>
+
+  <div id="crisisView">
+    <h2>⚠️ Distress signal detected</h2>
+    <p id="crisisText"></p>
+    <div class="actions">
+      <button id="resolveBtn">I'm okay, continue talking</button>
+      <button id="caregiverBtn">Show caregiver contact</button>
+    </div>
+    <div id="caregiverInfo"></div>
+  </div>
+</div>
+
+<script>
+const chatEl = document.getElementById('chat');
+const textInput = document.getElementById('textInput');
+const sendBtn = document.getElementById('sendBtn');
+const micBtn = document.getElementById('micBtn');
+const crisisView = document.getElementById('crisisView');
+const crisisText = document.getElementById('crisisText');
+const resolveBtn = document.getElementById('resolveBtn');
+const caregiverBtn = document.getElementById('caregiverBtn');
+const caregiverInfo = document.getElementById('caregiverInfo');
+
+const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+const ws = new WebSocket(`${proto}://${location.host}/ws/chat`);
+
+function addBubble(role, text, emotion) {
+  const b = document.createElement('div');
+  b.className = `bubble ${role === 'user' ? 'user' : 'luma'}`;
+  b.textContent = text;
+  chatEl.appendChild(b);
+  if (role === 'user' && emotion) {
+    const tag = document.createElement('div');
+    tag.className = 'emotion-tag';
+    tag.textContent = `detected: ${emotion}`;
+    chatEl.appendChild(tag);
+  }
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function playAudioB64(b64) {
+  if (!b64) return;
+  const audio = new Audio(`data:audio/wav;base64,${b64}`);
+  audio.play().catch(() => {}); // autoplay may need a user gesture first
+}
+
+function setCrisisMode(active) {
+  crisisView.style.display = active ? 'block' : 'none';
+  textInput.disabled = active;
+  sendBtn.disabled = active;
+  micBtn.disabled = active;
+}
+
+ws.onopen = () => console.log('WebSocket connected');
+ws.onclose = (e) => console.log('WebSocket closed', e.code, e.reason);
+ws.onerror = (e) => console.error('WebSocket error', e);
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+
+  switch (data.type) {
+    case 'history':
+      chatEl.innerHTML = '';
+      data.messages.forEach(m => addBubble(m.role, m.content, m.emotion));
+      break;
+
+    case 'transcription':
+      // shows what the mic heard before the reply arrives
+      console.log('Transcribed text:', data.text);
+      break;
+
+    case 'welcome_audio':
+      playAudioB64(data.audio_b64);
+      break;
+
+    case 'transcription_failed':
+      console.warn('Transcription failed:', data.message);
+      addBubble('luma', data.message);
+      break;
+
+    case 'user_message':
+      addBubble('user', data.text, data.emotion);
+      break;
+
+    case 'luma_message':
+      addBubble('luma', data.text);
+      playAudioB64(data.audio_b64);
+      break;
+
+    case 'crisis':
+      crisisText.textContent = data.text;
+      setCrisisMode(true);
+      break;
+
+    case 'crisis_resolved':
+      setCrisisMode(false);
+      caregiverInfo.textContent = '';
+      break;
+
+    case 'caregiver_info':
+      if (data.info) {
+        caregiverInfo.textContent =
+          `Caregiver on file: ${data.info.name} (${data.info.relationship}) — ${data.info.phone}`;
+      } else {
+        caregiverInfo.textContent = 'No caregiver info saved yet.';
+      }
+      break;
+  }
+};
+
+function sendText() {
+  const text = textInput.value.trim();
+  if (!text) return;
+  ws.send(JSON.stringify({ type: 'user_message', text }));
+  textInput.value = '';
+}
+sendBtn.onclick = sendText;
+textInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendText(); });
+
+resolveBtn.onclick = () => ws.send(JSON.stringify({ type: 'resolve_crisis' }));
+caregiverBtn.onclick = () => ws.send(JSON.stringify({ type: 'request_caregiver' }));
+
+// --- Mic recording ---
+let mediaRecorder = null;
+let chunks = [];
+let audioCtx = null;
+let analyser = null;
+let vadRAF = null;
+let silenceStart = null;
+
+const SILENCE_THRESHOLD = 0.02;   // volume level below which we count as "silence"
+const SILENCE_DURATION_MS = 1500; // how long silence must persist before auto-stop
+const micSelect = document.getElementById('micSelect');
+
+// Remember the chosen microphone across page reloads / new browser
+// sessions (not just within a single page load), so the user only has
+// to pick a device once, not every time they open LUMA.
+const MIC_STORAGE_KEY = 'luma_selected_mic_id';
+
+function saveSelectedMic(deviceId) {
+  if (!deviceId) return;
+  try {
+    localStorage.setItem(MIC_STORAGE_KEY, deviceId);
+  } catch (err) {
+    // localStorage can fail in rare cases (e.g. private browsing with
+    // storage disabled) — non-fatal, just means the preference won't
+    // persist this session, so we fail silently rather than break voice
+    // input over a convenience feature.
+    console.warn('Could not save mic preference:', err);
+  }
+}
+
+function loadSelectedMic() {
+  try {
+    return localStorage.getItem(MIC_STORAGE_KEY);
+  } catch (err) {
+    return null;
+  }
+}
+
+// Save the choice whenever the user changes it in the dropdown.
+micSelect.addEventListener('change', () => saveSelectedMic(micSelect.value));
+
+// Populate the dropdown with available input devices. Labels are only
+// visible AFTER permission has been granted at least once — before that,
+// Chrome shows generic names like "Microphone 1". That's a browser privacy
+// restriction, not a bug; the list will show real names after first use.
+async function populateMicList() {
+  try {
+    // Prefer whatever is currently selected in-memory (handles a
+    // repopulate during the same page load, e.g. after granting
+    // permission or a devicechange event); if nothing is selected yet
+    // in this page load (e.g. right after a fresh page load/reload),
+    // fall back to the last device saved from a previous session.
+    const previouslySelected = micSelect.value || loadSelectedMic();
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const mics = devices.filter(d => d.kind === 'audioinput');
+    micSelect.innerHTML = '';
+    mics.forEach((mic, i) => {
+      const opt = document.createElement('option');
+      opt.value = mic.deviceId;
+      opt.textContent = mic.label || `Microphone ${i + 1}`;
+      micSelect.appendChild(opt);
+    });
+
+    // Restore the previous (or previously saved) selection if that
+    // device is still present.
+    const stillExists = mics.some(m => m.deviceId === previouslySelected);
+    if (previouslySelected && stillExists) {
+      micSelect.value = previouslySelected;
+    } else if (mics.length > 0) {
+      // Nothing usable was saved (first-ever run, or the saved device
+      // was unplugged) — default to the first device, and remember it
+      // going forward so the *next* load doesn't need a manual pick.
+      saveSelectedMic(mics[0].deviceId);
+    }
+  } catch (err) {
+    console.error('Could not list microphones:', err);
+  }
+}
+populateMicList();
+// Device list can change after the first permission grant (labels appear),
+// or if a USB mic/headset is plugged/unplugged — refresh when that happens.
+navigator.mediaDevices.addEventListener('devicechange', populateMicList);
+
+// Watches the mic's volume level while recording. If it stays below
+// SILENCE_THRESHOLD for SILENCE_DURATION_MS, we treat that as "the person
+// stopped talking" and auto-stop the recording — no second click needed.
+function monitorSilence(stream) {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const source = audioCtx.createMediaStreamSource(stream);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512;
+  source.connect(analyser);
+
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  silenceStart = null;
+
+  function checkVolume() {
+    analyser.getByteTimeDomainData(data);
+    // RMS of the waveform, normalized 0..1
+    let sumSquares = 0;
+    for (let i = 0; i < data.length; i++) {
+      const v = (data[i] - 128) / 128;
+      sumSquares += v * v;
+    }
+    const rms = Math.sqrt(sumSquares / data.length);
+
+    if (rms < SILENCE_THRESHOLD) {
+      if (silenceStart === null) silenceStart = performance.now();
+      if (performance.now() - silenceStart > SILENCE_DURATION_MS) {
+        stopRecording();
+        return; // stop the RAF loop, recording is ending
+      }
+    } else {
+      silenceStart = null; // reset — person is still talking
+    }
+
+    vadRAF = requestAnimationFrame(checkVolume);
+  }
+  vadRAF = requestAnimationFrame(checkVolume);
+}
+
+function stopRecording() {
+  if (vadRAF) cancelAnimationFrame(vadRAF);
+  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+  }
+}
+
+micBtn.onclick = async () => {
+  // Manual click while recording = manual stop/cancel override.
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    stopRecording();
+    return;
+  }
+
+  let stream;
+  try {
+    // Explicitly request the device chosen in the dropdown (falling back
+    // to the saved preference if the dropdown hasn't finished populating
+    // yet), instead of whatever Chrome/Windows currently thinks is
+    // "default" — this is what fixes the mismatch between OS default and
+    // browser default.
+    const desiredMic = micSelect.value || loadSelectedMic();
+    const constraints = {
+      audio: desiredMic ? { deviceId: { exact: desiredMic } } : true
+    };
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+  } catch (err) {
+    // Without this try/catch, a denied or missing mic fails completely
+    // silently — clicking the button would do nothing at all, with no
+    // indication of why. This is very likely the actual root cause of
+    // "no audio captured."
+    console.error('Mic access failed:', err);
+    addBubble('luma', `Mic error: ${err.name} — ${err.message}. Check browser mic permissions for this site.`);
+    return;
+  }
+
+  // Now that permission is granted, device labels become visible —
+  // refresh the dropdown so it shows real names instead of generic ones.
+  populateMicList();
+
+  console.log('Mic stream obtained. Audio tracks:', stream.getAudioTracks());
+
+  mediaRecorder = new MediaRecorder(stream);
+  chunks = [];
+  mediaRecorder.ondataavailable = (e) => {
+    console.log('Chunk received, size:', e.data.size, 'bytes'); // should be > 0
+    chunks.push(e.data);
+  };
+  mediaRecorder.onstop = async () => {
+    micBtn.classList.remove('recording');
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    console.log('Sending recording, total size:', blob.size, 'bytes'); // watch this
+    const buffer = await blob.arrayBuffer();
+    ws.send(buffer);
+    stream.getTracks().forEach(t => t.stop());
+  };
+  mediaRecorder.start();
+  micBtn.classList.add('recording');
+
+  // Start watching volume so we can auto-stop on silence.
+  monitorSilence(stream);
+};
+</script>
+</body>
+</html>

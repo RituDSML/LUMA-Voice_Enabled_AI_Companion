@@ -1,0 +1,12 @@
+services:
+  luma:
+    build: .
+    container_name: luma
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    # No volumes mounted — DB and reminder state are ephemeral by design
+    # (your call): a container restart starts fresh. If you change your
+    # mind later, mount a volume for /app/luma.db to persist it.
+    restart: unless-stopped

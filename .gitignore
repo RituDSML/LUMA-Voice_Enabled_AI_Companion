@@ -1,0 +1,25 @@
+# Secrets — never commit API keys
+.env
+
+# Real user data — conversation history, mood/habit logs, caregiver info.
+# Excluded per the privacy stance documented in Chapter 8 (data stays
+# local, is not shared beyond what's disclosed to the LLM provider).
+luma.db
+
+# Trained model artifacts — too large for a plain git repo, and not
+# source code. Trained via the Colab notebook documented in the
+# Methodology chapter; re-run that notebook to regenerate this folder.
+luma_emotion_model/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Build/test artifacts — not source, not evidence
+build_log.txt
+test_recording.wav
+
+# Environment
+venv/
+.venv/

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "box-breathing",
+    "title": "Box breathing",
+    "content": "Box breathing is a technique for calming acute anxiety or panic. Inhale slowly for 4 counts, hold the breath for 4 counts, exhale for 4 counts, then hold again for 4 counts before repeating. This regulates the nervous system by activating the parasympathetic response and is often used before high-stress moments like exams or presentations."
+  },
+  {
+    "id": "5-4-3-2-1-grounding",
+    "title": "5-4-3-2-1 grounding technique",
+    "content": "The 5-4-3-2-1 technique helps interrupt spiraling anxious thoughts by redirecting attention to the senses. Name 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, and 1 thing you can taste. This is especially useful during dissociation or overwhelming anxiety."
+  },
+  {
+    "id": "cognitive-reframing",
+    "title": "Cognitive reframing",
+    "content": "Cognitive reframing involves identifying an automatic negative thought, questioning its accuracy, and replacing it with a more balanced perspective. For example, changing 'I always fail at everything' to 'I didn't succeed this time, but that doesn't define my ability overall.' This is a core technique from cognitive behavioral therapy (CBT)."
+  },
+  {
+    "id": "progressive-muscle-relaxation",
+    "title": "Progressive muscle relaxation",
+    "content": "Progressive muscle relaxation involves tensing each muscle group for 5 seconds and then releasing, working from feet up to the face. This helps release physical tension that builds up during stress and increases body awareness, often used before sleep or during high physical tension."
+  },
+  {
+    "id": "worry-time",
+    "title": "Scheduled worry time",
+    "content": "Scheduled worry time involves setting aside a specific 10-15 minute window each day to consciously think through worries, rather than letting them intrude throughout the day. When anxious thoughts arise outside this window, they are noted down and deferred to the scheduled time. This reduces rumination without suppressing the thoughts entirely."
+  },
+  {
+    "id": "opposite-action",
+    "title": "Opposite action (DBT)",
+    "content": "Opposite action is a dialectical behavior therapy (DBT) skill used when an emotion doesn't fit the facts of a situation or acting on it would be harmful. It involves deliberately doing the opposite of what the emotion urges — for example, engaging with others when the urge is to isolate due to sadness. This helps shift emotional state through behavior."
+  },
+  {
+    "id": "self-compassion-break",
+    "title": "Self-compassion break",
+    "content": "A self-compassion break involves three steps during a difficult moment: acknowledging the pain ('this is a moment of suffering'), recognizing shared humanity ('suffering is part of being human'), and offering kindness to oneself ('may I be kind to myself'). This is drawn from Kristin Neff's self-compassion research."
+  },
+  {
+    "id": "behavioral-activation",
+    "title": "Behavioral activation",
+    "content": "Behavioral activation is used to counter low mood or depressive withdrawal by scheduling small, achievable, values-aligned activities even when motivation is low. The idea is that action often precedes motivation, not the other way around — completing a small task can lift mood enough to enable the next one."
+  },
+  {
+    "id": "sleep-hygiene-wind-down",
+    "title": "Sleep wind-down routine",
+    "content": "A consistent wind-down routine 30-60 minutes before bed — dimming lights, avoiding screens, doing a calming activity like reading or light stretching — signals to the body that it's time to sleep. This supports circadian rhythm regulation and is especially helpful for anxiety-related insomnia."
+  },
+  {
+    "id": "urge-surfing",
+    "title": "Urge surfing",
+    "content": "Urge surfing is a mindfulness technique for managing cravings or compulsive urges (e.g., emotional eating, substance use, checking behaviors). Instead of acting on or suppressing the urge, you observe it non-judgmentally, noticing that urges rise, peak, and fall like a wave, typically within 20-30 minutes, without needing to be acted upon."
+  }
+]

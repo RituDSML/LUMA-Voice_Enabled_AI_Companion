@@ -1,0 +1,23 @@
+fastapi
+uvicorn[standard]
+python-multipart
+websockets
+openai-whisper
+transformers
+pyttsx3
+groq
+python-dotenv
+soundfile
+numpy
+
+# Added — found while tracing imports across the codebase:
+apscheduler        # reminders.py
+langgraph           # graph.py
+faiss-cpu           # luma_rag.py
+sentence-transformers  # luma_rag.py
+requests             # tools.py (Open-Meteo weather calls)
+
+# NOTE: torch is intentionally NOT listed here — it's installed
+# separately in the Dockerfile via the CPU-only index, to avoid
+# pulling several GB of unneeded NVIDIA/CUDA packages (torch,
+# triton, nvidia-cublas, nvidia-cudnn, etc). See Dockerfile.
