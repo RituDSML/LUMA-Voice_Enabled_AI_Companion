@@ -132,3 +132,4 @@ on natural phrasing (Ch.7 §7.5.2). The system is single-user, with no
 authentication, by deliberate scope decision (Ch.1 §1.2).
 
 Copyright (c) 2026 Ritu Balakrishnan. All rights reserved.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22862378.svg)](https://doi.org/10.5281/zenodo.22862378)
