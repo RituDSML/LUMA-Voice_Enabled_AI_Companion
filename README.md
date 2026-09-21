@@ -1,4 +1,4 @@
-# LUMA — Voice-Enabled Emotion-Aware Conversational AI Companion with Persistent Memory and Crisis Detection
+# LUMA — Voice-Enabled Emotion-Aware Conversational AI Health Companion with Persistent Memory and Crisis Detection
 
 LUMA is a personal health companion combining mandatory crisis-safety
 gating, concern-tier-gated retrieval-augmented grounding, and persistent
